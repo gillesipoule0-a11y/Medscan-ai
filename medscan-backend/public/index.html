@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedScan AI</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0B0F1A;
+    --surface: #141926;
+    --surface2: #1C2436;
+    --border: #252D40;
+    --accent: #00E5A0;
+    --accent2: #0066FF;
+    --warn: #FF6B35;
+    --danger: #FF3B5C;
+    --purple: #AA88FF;
+    --purple: #AA88FF;
+    --text: #E8EDF5;
+    --text2: #8896AA;
+    --text3: #556070;
+    --r: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(11,15,26,0.95);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .logo-icon {
+    width: 30px; height: 30px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+  }
+
+  .nav-tabs {
+    display: flex;
+    gap: 2px;
+    background: var(--surface);
+    padding: 3px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  .nav-tab {
+    padding: 7px 14px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text2);
+    transition: all 0.2s;
+    border: none;
+    background: transparent;
+    white-space: nowrap;
+  }
+
+  .nav-tab.active { background: var(--accent); color: #000; }
+
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+
+  .badge {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #000;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  .notif-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .notif-btn:hover { border-color: var(--accent); }
+
+  .notif-dot {
+    position: absolute;
+    top: 4px; right: 4px;
+    width: 7px; height: 7px;
+    background: var(--danger);
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 28px 24px;
+    width: 100%;
+    flex: 1;
+  }
+
+  .search-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    line-height: 1.2;
+  }
+  .search-label span { color: var(--accent); }
+  .search-sub { color: var(--text2); font-size: 13px; margin-bottom: 18px; }
+
+  .search-row { display: flex; gap: 8px; align-items: center; }
+
+  .search-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 13px 16px;
+    font-size: 14px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text3); }
+
+  .btn {
+    padding: 13px 18px;
+    border-radius: var(--r);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+    display: flex; align-items: center; gap: 6px;
+    white-space: nowrap;
+  }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: #00ffb3; transform: translateY(-1px); }
+  .btn-secondary { background: var(--surface); color: var(--text2); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--text); }
+  .btn-sm { padding: 8px 14px; font-size: 12px; }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text2); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  .suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .suggestion-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .suggestion-chip:hover { border-color: var(--accent); color: var(--accent); }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .loading-state {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 60px 20px; gap: 14px;
+  }
+  .spinner {
+    width: 44px; height: 44px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { color: var(--text2); font-size: 13px; }
+
+  .result-header {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 18px 22px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .med-name { font-family: 'Space Grotesk', sans-serif; font-size: 21px; font-weight: 700; margin-bottom: 4px; }
+  .med-generic { color: var(--text2); font-size: 13px; margin-bottom: 10px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .tag { padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 500; }
+  .tag-blue { background: rgba(0,102,255,0.15); color: #6699FF; border: 1px solid rgba(0,102,255,0.2); }
+  .tag-green { background: rgba(0,229,160,0.12); color: var(--accent); border: 1px solid rgba(0,229,160,0.2); }
+  .tag-orange { background: rgba(255,107,53,0.12); color: #FF8A5C; border: 1px solid rgba(255,107,53,0.2); }
+
+  .result-actions { display: flex; gap: 6px; margin-top: 12px; }
+
+  .risk-badge { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; }
+  .risk-circle {
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700;
+    text-align: center; line-height: 1.2; letter-spacing: 0.3px;
+  }
+  .risk-low { background: rgba(0,229,160,0.15); color: var(--accent); border: 2px solid rgba(0,229,160,0.4); }
+  .risk-med { background: rgba(255,107,53,0.15); color: #FF8A5C; border: 2px solid rgba(255,107,53,0.4); }
+  .risk-high { background: rgba(255,59,92,0.15); color: #FF6B80; border: 2px solid rgba(255,59,92,0.4); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } nav .nav-tabs { display: none; } }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
+  .card-title {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--text3); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .card-title .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .card-content { font-size: 13px; line-height: 1.6; color: var(--text2); }
+
+  .info-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-row .label { color: var(--text3); font-size: 12px; }
+  .info-row .value { color: var(--text); font-weight: 500; font-size: 12px; max-width: 56%; text-align: right; }
+
+  .alert {
+    border-radius: var(--r); padding: 13px 16px; font-size: 13px;
+    display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px;
+  }
+  .alert-warn { background: rgba(255,107,53,0.08); border: 1px solid rgba(255,107,53,0.25); color: #FFB08A; }
+  .alert-safe { background: rgba(0,229,160,0.08); border: 1px solid rgba(0,229,160,0.2); color: var(--accent); }
+  .alert-danger { background: rgba(255,59,92,0.08); border: 1px solid rgba(255,59,92,0.25); color: #FF8A96; }
+  .alert-info { background: rgba(0,102,255,0.08); border: 1px solid rgba(0,102,255,0.2); color: #88AAFF; }
+  .alert-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+  .section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px; font-weight: 600; color: var(--text3);
+    text-transform: uppercase; letter-spacing: 0.8px; margin: 22px 0 10px;
+  }
+
+  /* CHAT */
+  .chat-container { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+  .chat-messages {
+    padding: 18px; min-height: 260px; max-height: 400px;
+    overflow-y: auto; display: flex; flex-direction: column; gap: 14px;
+  }
+  .message { max-width: 85%; animation: fadeUp 0.25s ease; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+  .message.user { align-self: flex-end; }
+  .message-bubble { padding: 11px 15px; border-radius: 13px; font-size: 13px; line-height: 1.6; }
+  .message.user .message-bubble { background: var(--accent2); color: #fff; border-bottom-right-radius: 4px; }
+  .message.ai .message-bubble { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-bottom-left-radius: 4px; }
+  .message-label { font-size: 10px; color: var(--text3); margin-bottom: 4px; font-weight: 500; }
+  .message.user .message-label { text-align: right; }
+  .chat-input-row { display: flex; border-top: 1px solid var(--border); }
+  .chat-input { flex:1; background:transparent; border:none; padding:13px 16px; font-size:13px; color:var(--text); font-family:'Inter',sans-serif; outline:none; }
+  .chat-input::placeholder { color: var(--text3); }
+  .chat-send { background:var(--accent); border:none; padding:13px 18px; cursor:pointer; color:#000; font-size:15px; transition:background 0.2s; }
+  .chat-send:hover { background: #00ffb3; }
+
+  /* INTERACTIONS */
+  .interaction-scanner { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:22px; text-align:center; margin-bottom:14px; }
+  .scanned-meds { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:14px 0; }
+  .scanned-med { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:7px 12px; font-size:12px; display:flex; align-items:center; gap:7px; }
+  .remove-med { cursor:pointer; background:none; border:none; color:var(--text3); font-size:15px; line-height:1; }
+  .remove-med:hover { color: var(--danger); }
+
+  /* EMPTY STATE */
+  .empty-state { text-align:center; padding:50px 20px; color:var(--text3); }
+  .empty-icon { font-size:44px; margin-bottom:10px; }
+  .empty-title { font-family:'Space Grotesk',sans-serif; font-size:17px; color:var(--text2); margin-bottom:5px; }
+  .empty-sub { font-size:13px; }
+
+  /* HISTORY */
+  .history-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .history-item:hover { border-color: var(--accent); }
+  .history-left { display: flex; align-items: center; gap: 12px; }
+  .history-icon { font-size: 22px; }
+  .history-name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+  .history-meta { font-size: 12px; color: var(--text3); }
+  .history-risk { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+
+  /* PROFILE */
+  .profile-header {
+    background: linear-gradient(135deg, rgba(0,229,160,0.1), rgba(0,102,255,0.1));
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .avatar {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 50%;
+    margin: 0 auto 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .profile-name { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .profile-sub { color: var(--text2); font-size: 13px; }
+  .profile-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-top: 16px; }
+  .stat-box { background: var(--surface2); border-radius: 8px; padding: 10px; text-align: center; }
+  .stat-num { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  .toggle-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 0; border-bottom: 1px solid var(--border);
+  }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-info .toggle-label { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+  .toggle-info .toggle-desc { font-size: 12px; color: var(--text3); }
+  .toggle {
+    width: 40px; height: 22px;
+    background: var(--border);
+    border-radius: 11px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+    border: none;
+    flex-shrink: 0;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 16px; height: 16px;
+    background: white;
+    border-radius: 50%;
+    transition: left 0.2s;
+  }
+  .toggle.on::after { left: 21px; }
+
+  /* NOTICE SIMPLIFIÉE */
+  .notice-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .notice-tabs { display: flex; border-bottom: 1px solid var(--border); }
+  .notice-tab {
+    flex: 1; padding: 11px; font-size: 12px; font-weight: 500;
+    text-align: center; cursor: pointer; color: var(--text2);
+    background: transparent; border: none; transition: all 0.2s;
+    border-right: 1px solid var(--border);
+  }
+  .notice-tab:last-child { border-right: none; }
+  .notice-tab.active { background: rgba(0,229,160,0.08); color: var(--accent); }
+  .notice-content { padding: 18px; }
+  .notice-original { font-size: 12px; color: var(--text3); line-height: 1.7; font-style: italic; }
+  .notice-simple { font-size: 13px; color: var(--text); line-height: 1.7; }
+
+  /* CONTREFAÇON */
+  .verify-steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+  .verify-step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 14px 18px;
+    display: flex; gap: 14px; align-items: center;
+  }
+  .step-num {
+    width: 28px; height: 28px;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.3);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--accent);
+    flex-shrink: 0;
+  }
+  .step-info .step-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .step-info .step-desc { font-size: 12px; color: var(--text3); }
+
+  .verify-result {
+    border-radius: var(--r); padding: 20px; text-align: center;
+    border: 2px solid; margin-top: 14px;
+  }
+  .verify-result.authentic { border-color: rgba(0,229,160,0.4); background: rgba(0,229,160,0.06); }
+  .verify-result.suspicious { border-color: rgba(255,59,92,0.4); background: rgba(255,59,92,0.06); }
+  .verify-result-icon { font-size: 36px; margin-bottom: 8px; }
+  .verify-result-title { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .verify-result-sub { font-size: 13px; color: var(--text2); }
+
+  /* PHOTO RECOGNITION */
+  .photo-drop {
+    border: 2px dashed var(--border);
+    border-radius: var(--r);
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: var(--surface);
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .photo-drop:hover, .photo-drop.drag-over {
+    border-color: var(--accent);
+    background: rgba(0,229,160,0.04);
+  }
+  .photo-drop-icon { font-size: 40px; margin-bottom: 10px; }
+  .photo-drop-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .photo-drop-sub { font-size: 12px; color: var(--text3); }
+  .photo-preview {
+    width: 100%; max-height: 220px; object-fit: contain;
+    border-radius: 8px; margin-bottom: 12px; display: none;
+  }
+  #photo-file { display: none; }
+
+  /* POSOLOGIE CALCULATOR */
+  .age-slider-wrap { padding: 10px 0; }
+  .age-display {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 36px; font-weight: 700;
+    color: var(--accent); text-align: center; margin-bottom: 6px;
+  }
+  .age-sub { text-align: center; font-size: 12px; color: var(--text3); margin-bottom: 14px; }
+  input[type=range] {
+    width: 100%; accent-color: var(--accent);
+    height: 4px; cursor: pointer;
+  }
+  .weight-row { display: flex; gap: 10px; margin-top: 14px; align-items: center; }
+  .weight-input {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px; font-size: 15px;
+    color: var(--text); font-family: 'Inter', sans-serif; outline: none;
+    width: 100px; text-align: center;
+  }
+  .weight-input:focus { border-color: var(--accent); }
+  .dose-result {
+    background: linear-gradient(135deg, rgba(0,229,160,0.08), rgba(0,102,255,0.06));
+    border: 1px solid rgba(0,229,160,0.2);
+    border-radius: var(--r);
+    padding: 20px;
+    margin-top: 14px;
+    text-align: center;
+  }
+  .dose-number {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 32px; font-weight: 700; color: var(--accent);
+  }
+  .dose-unit { font-size: 14px; color: var(--text2); margin-top: 4px; }
+
+  /* ACCUEIL / DASHBOARD */
+  .dashboard-hero {
+    background: linear-gradient(135deg, rgba(0,229,160,0.08) 0%, rgba(0,102,255,0.06) 100%);
+    border: 1px solid rgba(0,229,160,0.15);
+    border-radius: 16px;
+    padding: 28px 24px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .dashboard-hero::before {
+    content: '💊';
+    position: absolute; right: 20px; top: 20px;
+    font-size: 64px; opacity: 0.12;
+  }
+  .hero-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px; font-weight: 700; margin-bottom: 6px;
+  }
+  .hero-sub { color: var(--text2); font-size: 14px; margin-bottom: 18px; }
+  .hero-btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .quick-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px; margin-bottom: 20px;
+  }
+  @media (max-width: 500px) { .quick-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .quick-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .quick-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .quick-card-icon { font-size: 24px; margin-bottom: 8px; }
+  .quick-card-label { font-size: 12px; font-weight: 600; color: var(--text2); }
+
+  .tip-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--r);
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  .tip-title { font-weight: 600; color: var(--text); margin-bottom: 4px; font-size: 13px; }
+
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* THINKING */
+  .thinking { display: flex; gap: 5px; align-items: center; padding: 5px 0; }
+  .thinking-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 1.2s ease-in-out infinite; }
+  .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+  .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes pulse { 0%,80%,100% { opacity:0.25; transform:scale(0.8); } 40% { opacity:1; transform:scale(1); } }
+
+  /* MOBILE NAV */
+  .mobile-nav {
+    display: none;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 8px 0 12px;
+    z-index: 200;
+  }
+  .mobile-nav-items { display: flex; justify-content: space-around; }
+  .mobile-nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 10px; }
+  .mobile-nav-icon { font-size: 20px; }
+  .mobile-nav-label { font-size: 10px; color: var(--text3); }
+  .mobile-nav-item.active .mobile-nav-label { color: var(--accent); }
+
+  @media (max-width: 600px) {
+    .mobile-nav { display: block; }
+    .container { padding-bottom: 80px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <div class="logo-icon">💊</div>
+    MedScan AI
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab" onclick="switchTab('accueil', this)">🏠 Accueil</button>
+    <button class="nav-tab active" onclick="switchTab('scan', this)">🔍 Scanner</button>
+    <button class="nav-tab" onclick="switchTab('interactions', this)">⚠️ Interactions</button>
+    <button class="nav-tab" onclick="switchTab('assistant', this)">💬 Assistant</button>
+    <button class="nav-tab" onclick="switchTab('notice', this)">📄 Notice</button>
+    <button class="nav-tab" onclick="switchTab('verify', this)">🛡️ Vérifier</button>
+    <button class="nav-tab" onclick="switchTab('photo', this)">📷 Photo</button>
+    <button class="nav-tab" onclick="switchTab('posologie', this)">👶 Posologie</button>
+    <button class="nav-tab" onclick="switchTab('historique', this)">📋 Historique</button>
+    <button class="nav-tab" onclick="switchTab('profil', this)">👤 Profil</button>
+  </div>
+  <div class="nav-right">
+    <span class="badge">BÊTA</span>
+    <button class="notif-btn" onclick="switchTab('historique', null)">🔔<span class="notif-dot"></span></button>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- ===== ACCUEIL ===== -->
+  <div id="tab-accueil" class="view">
+    <div class="dashboard-hero">
+      <div class="hero-title">Bienvenue sur MedScan AI</div>
+      <div class="hero-sub">Votre assistant médicament intelligent — identifiez, vérifiez, comprenez.</div>
+      <div class="hero-btn-row">
+        <button class="btn btn-primary" onclick="switchTab('scan', document.querySelectorAll('.nav-tab')[1])">🔍 Scanner un médicament</button>
+        <button class="btn btn-secondary" onclick="switchTab('assistant', document.querySelectorAll('.nav-tab')[3])">💬 Poser une question</button>
+      </div>
+    </div>
+
+    <div class="section-title">Accès rapide</div>
+    <div class="quick-grid">
+      <div class="quick-card" onclick="switchTab('scan', document.querySelectorAll('.nav-tab')[1])">
+        <div class="quick-card-icon">🔍</div>
+        <div class="quick-card-label">Scanner</div>
+      </div>
+      <div class="quick-card" onclick="switchTab('photo', document.querySelectorAll('.nav-tab')[6])">
+        <div class="quick-card-icon">📷</div>
+        <div class="quick-card-label">Par photo</div>
+      </div>
+      <div class="quick-card" onclick="switchTab('interactions', document.querySelectorAll('.nav-tab')[2])">
+        <div class="quick-card-icon">⚠️</div>
+        <div class="quick-card-label">Interactions</div>
+      </div>
+      <div class="quick-card" onclick="switchTab('posologie', document.querySelectorAll('.nav-tab')[7])">
+        <div class="quick-card-icon">👶</div>
+        <div class="quick-card-label">Posologie âge</div>
+      </div>
+      <div class="quick-card" onclick="switchTab('notice', document.querySelectorAll('.nav-tab')[4])">
+        <div class="quick-card-icon">📄</div>
+        <div class="quick-card-label">Notice simple</div>
+      </div>
+      <div class="quick-card" onclick="switchTab('verify', document.querySelectorAll('.nav-tab')[5])">
+        <div class="quick-card-icon">🛡️</div>
+        <div class="quick-card-label">Contrefaçons</div>
+      </div>
+    </div>
+
+    <div class="section-title">Statistiques</div>
+    <div class="grid-2" style="margin-bottom:20px">
+      <div class="card" style="text-align:center">
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;color:var(--accent)" id="home-scans">0</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">Médicaments analysés</div>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;color:var(--accent2)" id="home-inter">0</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">Interactions vérifiées</div>
+      </div>
+    </div>
+
+    <div class="section-title">Le saviez-vous ?</div>
+    <div class="tip-card">
+      <div class="tip-title">🌍 Médicaments contrefaits en Afrique</div>
+      Selon l'OMS, jusqu'à 30 % des médicaments en circulation dans certains pays africains sont contrefaits ou de mauvaise qualité. Vérifiez toujours l'authenticité de vos médicaments.
+    </div>
+    <div class="tip-card">
+      <div class="tip-title">💊 Paracétamol et alcool</div>
+      L'association paracétamol + alcool peut provoquer de graves lésions hépatiques, même à dose thérapeutique. Évitez toute consommation d'alcool pendant un traitement.
+    </div>
+    <div class="tip-card">
+      <div class="tip-title">⏰ Antibiotiques : finir le traitement</div>
+      Arrêter un antibiotique avant la fin du traitement favorise la résistance bactérienne. Suivez toujours la durée prescrite, même si vous vous sentez mieux.
+    </div>
+  </div>
+
+  <!-- ===== SCANNER ===== -->
+  <div id="tab-scan" class="view active">
+    <div style="margin-bottom:24px">
+      <h1 class="search-label">Identifiez votre <span>médicament</span></h1>
+      <p class="search-sub">Nom commercial, molécule active ou code-barres</p>
+      <div class="search-row">
+        <input class="search-input" id="scan-input" placeholder="Ex: Doliprane, Paracétamol, Metformine…" onkeydown="if(event.key==='Enter') doScan()"/>
+        <button class="btn btn-secondary" onclick="simulateScan()">📷 Scanner</button>
+        <button class="btn btn-primary" onclick="doScan()">Analyser →</button>
+      </div>
+      <div class="suggestions">
+        <span class="suggestion-chip" onclick="quickScan('Doliprane')">Doliprane</span>
+        <span class="suggestion-chip" onclick="quickScan('Amoxicilline')">Amoxicilline</span>
+        <span class="suggestion-chip" onclick="quickScan('Ibuprofène')">Ibuprofène</span>
+        <span class="suggestion-chip" onclick="quickScan('Aspirine')">Aspirine</span>
+        <span class="suggestion-chip" onclick="quickScan('Metformine')">Metformine</span>
+        <span class="suggestion-chip" onclick="quickScan('Warfarine')">Warfarine</span>
+        <span class="suggestion-chip" onclick="quickScan('Oméprazole')">Oméprazole</span>
+      </div>
+    </div>
+
+    <div id="scan-empty" class="empty-state">
+      <div class="empty-icon">💊</div>
+      <div class="empty-title">Prêt à analyser</div>
+      <div class="empty-sub">Entrez un nom de médicament pour obtenir toutes les informations détaillées</div>
+    </div>
+
+    <div id="scan-loading" class="loading-state" style="display:none">
+      <div class="spinner"></div>
+      <div class="loading-text" id="loading-msg">Identification en cours…</div>
+    </div>
+
+    <div id="scan-result" style="display:none"></div>
+  </div>
+
+  <!-- ===== INTERACTIONS ===== -->
+  <div id="tab-interactions" class="view">
+    <h1 class="search-label">Vérifier les <span>interactions</span></h1>
+    <p class="search-sub" style="margin-bottom:18px">Ajoutez plusieurs médicaments pour détecter les risques</p>
+
+    <div class="interaction-scanner">
+      <div class="search-row" style="max-width:480px;margin:0 auto;">
+        <input class="search-input" id="inter-input" placeholder="Ajouter un médicament…" onkeydown="if(event.key==='Enter') addMed()"/>
+        <button class="btn btn-primary" onclick="addMed()">+ Ajouter</button>
+      </div>
+      <div class="scanned-meds" id="scanned-meds-list"></div>
+      <button class="btn btn-primary" id="check-btn" style="margin-top:4px;display:none" onclick="checkInteractions()">🔍 Vérifier les interactions</button>
+    </div>
+
+    <div id="interactions-result"></div>
+  </div>
+
+  <!-- ===== ASSISTANT ===== -->
+  <div id="tab-assistant" class="view">
+    <h1 class="search-label">Assistant <span>médical IA</span></h1>
+    <p class="search-sub" style="margin-bottom:18px">Questions sur vos médicaments, dosages, symptômes</p>
+
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
+      <button class="btn btn-ghost btn-sm" onclick="setQuestion('Puis-je prendre du Doliprane si je suis enceinte ?')">🤰 Grossesse & médicaments</button>
+      <button class="btn btn-ghost btn-sm" onclick="setQuestion('Quelle est la dose maximale d\'ibuprofène par jour ?')">💊 Dosage maximum</button>
+      <button class="btn btn-ghost btn-sm" onclick="setQuestion('J\'ai oublié de prendre mon médicament, que faire ?')">❓ Dose oubliée</button>
+      <button class="btn btn-ghost btn-sm" onclick="setQuestion('Puis-je prendre de l\'alcool avec des antibiotiques ?')">🍷 Alcool & antibiotiques</button>
+    </div>
+
+    <div class="chat-container">
+      <div class="chat-messages" id="chat-messages">
+        <div class="message ai">
+          <div class="message-label">MedScan AI</div>
+          <div class="message-bubble">
+            Bonjour ! Je suis votre assistant médical IA. Je peux vous aider avec :<br><br>
+            • Questions sur vos médicaments et leurs dosages<br>
+            • Précautions à prendre (grossesse, enfants, conduite)<br>
+            • Que faire en cas de dose oubliée<br>
+            • Quand consulter un médecin<br><br>
+            <strong>Comment puis-je vous aider ?</strong>
+          </div>
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chat-input" placeholder="Posez votre question médicale…" onkeydown="if(event.key==='Enter') sendChat()"/>
+        <button class="chat-send" onclick="sendChat()">➤</button>
+      </div>
+    </div>
+
+    <div class="alert alert-warn" style="margin-top:12px">
+      <span class="alert-icon">⚠️</span>
+      <div>Informations générales uniquement. Ne remplace pas un avis médical professionnel. Consultez votre médecin ou pharmacien en cas de doute.</div>
+    </div>
+  </div>
+
+  <!-- ===== NOTICE SIMPLIFIÉE ===== -->
+  <div id="tab-notice" class="view">
+    <h1 class="search-label">Notice <span>simplifiée</span></h1>
+    <p class="search-sub" style="margin-bottom:18px">L'IA traduit le jargon médical en langage compréhensible</p>
+
+    <div class="search-row" style="margin-bottom:14px">
+      <input class="search-input" id="notice-input" placeholder="Nom du médicament ou collez le texte de la notice…" onkeydown="if(event.key==='Enter') simplifyNotice()"/>
+      <button class="btn btn-primary" onclick="simplifyNotice()">✨ Simplifier</button>
+    </div>
+
+    <div class="alert alert-info">
+      <span class="alert-icon">💡</span>
+      <div>Vous pouvez coller directement le texte complexe d'une notice médicale — l'IA le reformulera en langage clair.</div>
+    </div>
+
+    <div id="notice-loading" class="loading-state" style="display:none">
+      <div class="spinner"></div>
+      <div class="loading-text">Simplification en cours…</div>
+    </div>
+
+    <div id="notice-result"></div>
+
+    <div style="margin-top:20px">
+      <div class="section-title">Exemples de traductions</div>
+      <div class="notice-box">
+        <div class="notice-tabs">
+          <button class="notice-tab active" onclick="switchNoticeTab(0, this)">Original</button>
+          <button class="notice-tab" onclick="switchNoticeTab(1, this)">Simplifié ✨</button>
+        </div>
+        <div class="notice-content">
+          <div id="notice-ex-0" class="notice-original">
+            "Contre-indiqué chez les patients présentant une hypersensibilité connue à la substance active ou à l'un des excipients mentionnés à la rubrique 6.1. Ne pas administrer en cas d'insuffisance hépatique sévère ou de pathologie rénale au stade terminal."
+          </div>
+          <div id="notice-ex-1" class="notice-simple" style="display:none">
+            "Ne prenez <strong>pas</strong> ce médicament si :<br>• Vous avez déjà eu une réaction allergique à ce médicament<br>• Vous avez de graves problèmes de foie ou de reins<br><br>En cas de doute, demandez à votre médecin ou pharmacien."
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== VÉRIFICATION CONTREFAÇONS ===== -->
+  <div id="tab-verify" class="view">
+    <h1 class="search-label">Détecter les <span>contrefaçons</span></h1>
+    <p class="search-sub" style="margin-bottom:18px">Vérifiez l'authenticité de vos médicaments en quelques étapes</p>
+
+    <div class="alert alert-warn" style="margin-bottom:18px">
+      <span class="alert-icon">⚠️</span>
+      <div>Les médicaments contrefaits représentent un danger grave. Cette vérification est indicative — en cas de doute, consultez un pharmacien agréé.</div>
+    </div>
+
+    <div class="verify-steps">
+      <div class="verify-step">
+        <div class="step-num">1</div>
+        <div class="step-info">
+          <div class="step-title">Saisir le code-barres ou numéro de lot</div>
+          <div class="step-desc">Visible sur l'emballage secondaire du médicament</div>
+        </div>
+      </div>
+      <div class="verify-step">
+        <div class="step-num">2</div>
+        <div class="step-info">
+          <div class="step-title">Indiquer le pays d'achat</div>
+          <div class="step-desc">Permet de croiser avec les bases de données nationales</div>
+        </div>
+      </div>
+      <div class="verify-step">
+        <div class="step-num">3</div>
+        <div class="step-info">
+          <div class="step-title">Décrire l'emballage et le comprimé</div>
+          <div class="step-desc">Couleur, texture, odeur, inscriptions sur le comprimé</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title"><span class="dot" style="background:var(--accent)"></span>Informations du médicament</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+        <input class="search-input" id="verify-barcode" placeholder="Code-barres ou numéro de lot (ex: 3400938454280)"/>
+        <div class="search-row">
+          <input class="search-input" id="verify-name" placeholder="Nom du médicament"/>
+          <input class="search-input" id="verify-country" placeholder="Pays d'achat"/>
+        </div>
+        <input class="search-input" id="verify-desc" placeholder="Description visuelle : couleur, forme, inscriptions…"/>
+        <button class="btn btn-primary" style="align-self:flex-start" onclick="verifyMed()">🛡️ Vérifier l'authenticité</button>
+      </div>
+    </div>
+
+    <div id="verify-loading" class="loading-state" style="display:none">
+      <div class="spinner"></div>
+      <div class="loading-text">Vérification en cours…</div>
+    </div>
+
+    <div id="verify-result"></div>
+  </div>
+
+  <!-- ===== RECONNAISSANCE PHOTO ===== -->
+  <div id="tab-photo" class="view">
+    <h1 class="search-label">Reconnaître par <span>photo</span></h1>
+    <p class="search-sub" style="margin-bottom:18px">Photographiez la boîte, la plaquette ou le comprimé — l'IA identifie le médicament</p>
+
+    <div class="alert alert-info" style="margin-bottom:16px">
+      <span class="alert-icon">💡</span>
+      <div>Prenez une photo nette de l'emballage, du nom imprimé ou du comprimé. L'IA analysera les caractéristiques visuelles pour identifier le médicament.</div>
+    </div>
+
+    <div class="photo-drop" id="photo-drop" onclick="document.getElementById('photo-file').click()" ondragover="photoDragOver(event)" ondrop="photoDrop(event)" ondragleave="this.classList.remove('drag-over')">
+      <input type="file" id="photo-file" accept="image/*" onchange="photoSelected(event)"/>
+      <img id="photo-preview" class="photo-preview"/>
+      <div id="photo-placeholder">
+        <div class="photo-drop-icon">📷</div>
+        <div class="photo-drop-title">Cliquez ou déposez une image</div>
+        <div class="photo-drop-sub">JPG, PNG, WEBP · Boîte, plaquette ou comprimé</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <button class="btn btn-primary" id="photo-analyze-btn" style="display:none" onclick="analyzePhoto()">🔍 Analyser cette photo</button>
+      <button class="btn btn-ghost btn-sm" onclick="clearPhoto()">🗑 Effacer</button>
+    </div>
+
+    <div id="photo-loading" class="loading-state" style="display:none">
+      <div class="spinner"></div>
+      <div class="loading-text">Analyse visuelle en cours…</div>
+    </div>
+
+    <div id="photo-result"></div>
+
+    <div class="section-title" style="margin-top:20px">Conseils pour de meilleurs résultats</div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--accent)"></span>Ce qui fonctionne bien</div>
+        <div class="card-content">
+          • Boîte avec nom lisible<br>
+          • Fond uni et bien éclairé<br>
+          • Plaquette avec inscriptions<br>
+          • Logo du laboratoire visible
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--danger)"></span>À éviter</div>
+        <div class="card-content">
+          • Photo floue ou sombre<br>
+          • Reflets sur l'emballage<br>
+          • Boîte abîmée ou illisible<br>
+          • Angle trop oblique
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== POSOLOGIE PAR ÂGE ===== -->
+  <div id="tab-posologie" class="view">
+    <h1 class="search-label">Posologie par <span>âge et poids</span></h1>
+    <p class="search-sub" style="margin-bottom:18px">Calculez la dose adaptée à chaque patient selon son âge et son poids</p>
+
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title"><span class="dot" style="background:var(--accent2)"></span>Médicament à calculer</div>
+      <div class="search-row" style="margin-top:8px">
+        <input class="search-input" id="dose-med-input" placeholder="Nom du médicament (ex: Paracétamol, Ibuprofène…)"/>
+        <button class="btn btn-primary" onclick="calcDose()">Calculer</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title"><span class="dot" style="background:var(--accent)"></span>Profil du patient</div>
+      <div class="age-slider-wrap">
+        <div class="age-display" id="age-display">25 ans</div>
+        <div class="age-sub">Faites glisser pour ajuster l'âge</div>
+        <input type="range" id="age-slider" min="0" max="90" value="25" oninput="updateAge(this.value)"/>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:4px">
+          <span>Nouveau-né</span><span>Nourrisson</span><span>Enfant</span><span>Adulte</span><span>Senior</span>
+        </div>
+      </div>
+      <div class="weight-row">
+        <span style="font-size:13px;color:var(--text2)">Poids :</span>
+        <input class="weight-input" type="number" id="weight-input" value="70" min="1" max="200" placeholder="kg"/>
+        <span style="font-size:13px;color:var(--text2)">kg</span>
+        <button class="btn btn-ghost btn-sm" onclick="autoWeight()">Auto selon l'âge</button>
+      </div>
+    </div>
+
+    <div id="dose-loading" class="loading-state" style="display:none">
+      <div class="spinner"></div>
+      <div class="loading-text">Calcul de la posologie…</div>
+    </div>
+
+    <div id="dose-result"></div>
+
+    <div class="alert alert-warn" style="margin-top:14px">
+      <span class="alert-icon">⚠️</span>
+      <div>Ces calculs sont indicatifs. La posologie exacte doit être déterminée par un médecin ou pharmacien en tenant compte de l'état clinique du patient.</div>
+    </div>
+  </div>
+
+  <!-- ===== HISTORIQUE ===== -->
+  <div id="tab-historique" class="view">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <h1 class="search-label">Mon <span>historique</span></h1>
+        <p class="search-sub">Médicaments récemment consultés</p>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="clearHistory()">🗑 Effacer</button>
+    </div>
+
+    <div id="history-list">
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">Aucune consultation</div>
+        <div class="empty-sub">Vos recherches de médicaments apparaîtront ici</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PROFIL ===== -->
+  <div id="tab-profil" class="view">
+    <div class="profile-header">
+      <div class="avatar">👤</div>
+      <div class="profile-name">Mon Profil Santé</div>
+      <div class="profile-sub">Personnalisez votre expérience MedScan</div>
+      <div class="profile-stats">
+        <div class="stat-box">
+          <div class="stat-num" id="stat-scans">0</div>
+          <div class="stat-label">Scans</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="stat-interactions">0</div>
+          <div class="stat-label">Vérifications</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="stat-days">1</div>
+          <div class="stat-label">Jour(s)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title"><span class="dot" style="background:var(--danger)"></span>Mes allergies connues</div>
+      <input class="search-input" id="allergy-input" placeholder="Ex: Pénicilline, Aspirine, Codéine…" style="margin-bottom:8px;width:100%"/>
+      <div id="allergy-tags" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      <button class="btn btn-sm btn-ghost" style="margin-top:8px" onclick="addAllergy()">+ Ajouter allergie</button>
+    </div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title"><span class="dot" style="background:var(--accent2)"></span>Préférences & notifications</div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Alertes interactions automatiques</div>
+          <div class="toggle-desc">Avertir si un médicament scanné interagit avec mes allergies</div>
+        </div>
+        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Rappels de prise</div>
+          <div class="toggle-desc">Recevoir des rappels pour les traitements en cours</div>
+        </div>
+        <button class="toggle" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Mode simplifié</div>
+          <div class="toggle-desc">Afficher les notices en langage simplifié par défaut</div>
+        </div>
+        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Sauvegarder l'historique</div>
+          <div class="toggle-desc">Conserver l'historique des consultations sur cet appareil</div>
+        </div>
+        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--purple)"></span>Abonnement</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
+        <div>
+          <div style="font-weight:600;font-size:14px">Plan Gratuit</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px">5 scans / jour · Informations de base</div>
+        </div>
+        <button class="btn btn-primary btn-sm">⭐ Premium</button>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px;margin-top:8px">
+        <div style="font-size:12px;color:var(--accent);font-weight:600;margin-bottom:6px">Premium — 4€/mois</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6">✓ Scans illimités · ✓ Vérification d'interactions avancée · ✓ Historique complet · ✓ Export PDF · ✓ Alertes personnalisées</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav">
+  <div class="mobile-nav-items">
+    <div class="mobile-nav-item" onclick="switchTab('accueil', null); setMobileActive(this)">
+      <span class="mobile-nav-icon">🏠</span>
+      <span class="mobile-nav-label">Accueil</span>
+    </div>
+    <div class="mobile-nav-item active" onclick="switchTab('scan', null); setMobileActive(this)">
+      <span class="mobile-nav-icon">🔍</span>
+      <span class="mobile-nav-label">Scanner</span>
+    </div>
+    <div class="mobile-nav-item" onclick="switchTab('photo', null); setMobileActive(this)">
+      <span class="mobile-nav-icon">📷</span>
+      <span class="mobile-nav-label">Photo</span>
+    </div>
+    <div class="mobile-nav-item" onclick="switchTab('interactions', null); setMobileActive(this)">
+      <span class="mobile-nav-icon">⚠️</span>
+      <span class="mobile-nav-label">Interactions</span>
+    </div>
+    <div class="mobile-nav-item" onclick="switchTab('profil', null); setMobileActive(this)">
+      <span class="mobile-nav-icon">👤</span>
+      <span class="mobile-nav-label">Profil</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─── STATE ─────────────────────────────────────────────
+  let scanHistory = JSON.parse(localStorage.getItem('medscan_history') || '[]');
+  let scanCount = parseInt(localStorage.getItem('medscan_count') || '0');
+  let interCount = parseInt(localStorage.getItem('medscan_inter') || '0');
+  let allergies = JSON.parse(localStorage.getItem('medscan_allergies') || '[]');
+  let chatHistory = [];
+  let scannedMeds = [];
+  let activeTab = 'scan';
+  let activeNavTab = null;
+
+  // ─── NAV ───────────────────────────────────────────────
+  function switchTab(tab, el) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    activeTab = tab;
+    if (el) {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+    }
+    if (tab === 'historique') renderHistory();
+    if (tab === 'profil') updateStats();
+    if (tab === 'accueil') updateHomeStats();
+  }
+
+  function setMobileActive(el) {
+    document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // ─── SCAN ──────────────────────────────────────────────
+  function quickScan(name) { document.getElementById('scan-input').value = name; doScan(); }
+
+  function simulateScan() {
+    const meds = ['Doliprane 1000mg', 'Amoxicilline 500mg', 'Ibuprofène 400mg', 'Oméprazole 20mg'];
+    document.getElementById('scan-input').value = meds[Math.floor(Math.random() * meds.length)];
+    doScan();
+  }
+
+  async function doScan() {
+    const query = document.getElementById('scan-input').value.trim();
+    if (!query) return;
+
+    document.getElementById('scan-empty').style.display = 'none';
+    document.getElementById('scan-result').style.display = 'none';
+    document.getElementById('scan-loading').style.display = 'flex';
+
+    const msgs = ['Identification en cours…','Interrogation des bases de données…','Analyse de la composition…','Vérification des interactions…','Génération du rapport…'];
+    let i = 0;
+    const interval = setInterval(() => { document.getElementById('loading-msg').textContent = msgs[++i % msgs.length]; }, 800);
+
+    try {
+      const response = await fetch('/api/claude', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1000,
+          system: `Tu es une base de données médicale experte. Réponds UNIQUEMENT en JSON valide, sans markdown.
+Structure exacte (tous les champs obligatoires):
+{
+  "nom_commercial": "string",
+  "nom_generique": "string",
+  "classe": "string",
+  "dosages": ["string"],
+  "indications": ["string","string","string"],
+  "posologie": "string courte",
+  "contre_indications": ["string","string","string"],
+  "effets_secondaires": ["string","string","string","string"],
+  "grossesse": "string courte",
+  "enfant": "string courte",
+  "conservation": "string courte",
+  "niveau_risque": "Faible",
+  "interaction_majeure": null
+}
+Pour niveau_risque: "Faible", "Modéré" ou "Élevé" uniquement.`,
+          messages: [{ role: 'user', content: `Médicament: ${query}` }]
+        })
+      });
+      const data = await response.json();
+      clearInterval(interval);
+      document.getElementById('scan-loading').style.display = 'none';
+      let text = data.content.map(b => b.text || '').join('');
+      text = text.replace(/```json|```/g, '').trim();
+      const med = JSON.parse(text);
+      med._query = query;
+      addToHistory(med);
+      renderResult(med);
+    } catch (e) {
+      clearInterval(interval);
+      document.getElementById('scan-loading').style.display = 'none';
+      document.getElementById('scan-result').style.display = 'block';
+      document.getElementById('scan-result').innerHTML = `<div class="alert alert-warn"><span class="alert-icon">⚠️</span><div>Impossible d'analyser. Vérifiez votre connexion ou réessayez.</div></div>`;
+    }
+  }
+
+  function renderResult(med) {
+    const riskClass = med.niveau_risque === 'Faible' ? 'risk-low' : med.niveau_risque === 'Modéré' ? 'risk-med' : 'risk-high';
+    const riskShort = med.niveau_risque === 'Faible' ? '✓' : med.niveau_risque === 'Modéré' ? '!' : '!!';
+
+    // Check allergies
+    let allergyAlert = '';
+    const userAllergies = allergies.map(a => a.toLowerCase());
+    const allMedText = [med.nom_commercial, med.nom_generique, med.classe, ...(med.indications||[])].join(' ').toLowerCase();
+    const hit = userAllergies.find(a => allMedText.includes(a));
+    if (hit) allergyAlert = `<div class="alert alert-danger"><span class="alert-icon">🚨</span><div><strong>Allergie détectée !</strong> Ce médicament pourrait contenir <strong>${hit}</strong>, présent dans vos allergies enregistrées. Consultez votre médecin avant toute prise.</div></div>`;
+
+    document.getElementById('scan-result').innerHTML = `
+      <div class="result-header">
+        <div style="flex:1">
+          <div class="med-name">${med.nom_commercial}</div>
+          <div class="med-generic">${med.nom_generique} · ${med.classe}</div>
+          <div class="tags">
+            ${(med.dosages||[]).map(d => `<span class="tag tag-blue">${d}</span>`).join('')}
+            <span class="tag tag-green">${med.niveau_risque === 'Faible' ? '✓ Risque faible' : med.niveau_risque === 'Modéré' ? '⚠ Risque modéré' : '⛔ Risque élevé'}</span>
+          </div>
+          <div class="result-actions">
+            <button class="btn btn-ghost btn-sm" onclick="openNoticeForMed('${med.nom_commercial}')">📄 Notice simplifiée</button>
+            <button class="btn btn-ghost btn-sm" onclick="addToInteractions('${med.nom_commercial}')">⚠️ Vérifier interactions</button>
+          </div>
+        </div>
+        <div class="risk-badge">
+          <div class="risk-circle ${riskClass}">${riskShort}<br>RISQUE<br>${(med.niveau_risque||'').toUpperCase()}</div>
+        </div>
+      </div>
+
+      ${allergyAlert}
+      ${med.interaction_majeure ? `<div class="alert alert-warn"><span class="alert-icon">⚠️</span><div><strong>Interaction notable :</strong> ${med.interaction_majeure}</div></div>` : `<div class="alert alert-safe"><span class="alert-icon">✅</span><div>Aucune interaction majeure connue dans les conditions normales d'utilisation.</div></div>`}
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--accent2)"></span>Indications</div>
+          <div class="card-content">${(med.indications||[]).map(i => `• ${i}`).join('<br>')}</div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--accent)"></span>Posologie recommandée</div>
+          <div class="card-content">${med.posologie}</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-title"><span class="dot" style="background:var(--danger)"></span>Contre-indications</div>
+        <div class="card-content">${(med.contre_indications||[]).map(c => `• ${c}`).join('<br>')}</div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--warn)"></span>Effets secondaires</div>
+          <div class="card-content">${(med.effets_secondaires||[]).map(e => `• ${e}`).join('<br>')}</div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--purple)"></span>Informations spéciales</div>
+          <div>
+            <div class="info-row"><span class="label">🤰 Grossesse</span><span class="value">${med.grossesse}</span></div>
+            <div class="info-row"><span class="label">👶 Enfant</span><span class="value">${med.enfant}</span></div>
+            <div class="info-row"><span class="label">📦 Conservation</span><span class="value">${med.conservation}</span></div>
+          </div>
+        </div>
+      </div>
+    `;
+    document.getElementById('scan-result').style.display = 'block';
+  }
+
+  function openNoticeForMed(name) {
+    document.getElementById('notice-input').value = name;
+    switchTab('notice', null);
+    document.querySelectorAll('.nav-tab')[3].click();
+    simplifyNotice();
+  }
+
+  function addToInteractions(name) {
+    if (!scannedMeds.includes(name)) { scannedMeds.push(name); }
+    switchTab('interactions', null);
+    document.querySelectorAll('.nav-tab')[1].click();
+    renderMedList();
+  }
+
+  // ─── HISTORY ───────────────────────────────────────────
+  function addToHistory(med) {
+    scanCount++;
+    localStorage.setItem('medscan_count', scanCount);
+    const entry = { name: med.nom_commercial, generic: med.nom_generique, risk: med.niveau_risque, date: new Date().toLocaleDateString('fr-FR'), ts: Date.now() };
+    scanHistory = [entry, ...scanHistory.filter(h => h.name !== entry.name)].slice(0, 20);
+    localStorage.setItem('medscan_history', JSON.stringify(scanHistory));
+    document.getElementById('stat-scans').textContent = scanCount;
+  }
+
+  function renderHistory() {
+    const list = document.getElementById('history-list');
+    if (scanHistory.length === 0) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Aucune consultation</div><div class="empty-sub">Vos recherches apparaîtront ici</div></div>`;
+      return;
+    }
+    list.innerHTML = scanHistory.map(h => {
+      const riskColor = h.risk === 'Faible' ? 'var(--accent)' : h.risk === 'Modéré' ? '#FF8A5C' : '#FF6B80';
+      const riskBg = h.risk === 'Faible' ? 'rgba(0,229,160,0.1)' : h.risk === 'Modéré' ? 'rgba(255,107,53,0.1)' : 'rgba(255,59,92,0.1)';
+      return `<div class="history-item" onclick="quickScan('${h.name}'); switchTab('scan', document.querySelectorAll('.nav-tab')[0])">
+        <div class="history-left">
+          <div class="history-icon">💊</div>
+          <div>
+            <div class="history-name">${h.name}</div>
+            <div class="history-meta">${h.generic} · ${h.date}</div>
+          </div>
+        </div>
+        <span class="history-risk" style="color:${riskColor};background:${riskBg}">Risque ${h.risk}</span>
+      </div>`;
+    }).join('');
+  }
+
+  function clearHistory() {
+    if (!confirm('Effacer tout l\'historique ?')) return;
+    scanHistory = [];
+    localStorage.setItem('medscan_history', '[]');
+    renderHistory();
+  }
+
+  // ─── INTERACTIONS ──────────────────────────────────────
+  function addMed() {
+    const val = document.getElementById('inter-input').value.trim();
+    if (!val || scannedMeds.includes(val)) return;
+    scannedMeds.push(val);
+    document.getElementById('inter-input').value = '';
+    renderMedList();
+  }
+
+  function removeMed(name) {
+    scannedMeds = scannedMeds.filter(m => m !== name);
+    renderMedList();
+    document.getElementById('interactions-result').innerHTML = '';
+  }
+
+  function renderMedList() {
+    const list = document.getElementById('scanned-meds-list');
+    list.innerHTML = scannedMeds.map(m => `<div class="scanned-med">💊 ${m}<button class="remove-med" onclick="removeMed('${m}')">×</button></div>`).join('');
+    document.getElementById('check-btn').style.display = scannedMeds.length >= 2 ? 'inline-flex' : 'none';
+  }
+
+  async function checkInteractions() {
+    if (scannedMeds.length < 2) return;
+    interCount++;
+    localStorage.setItem('medscan_inter', interCount);
+    document.getElementById('stat-interactions').textContent = interCount;
+    document.getElementById('interactions-result').innerHTML = `<div class="loading-state"><div class="spinner"></div><div class="loading-text">Analyse des interactions…</div></div>`;
+
+    try {
+      const response = await fetch('/api/claude', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1000,
+          system: `Expert en pharmacologie. JSON uniquement, sans markdown:
+{"interactions":[{"med1":"string","med2":"string","niveau":"Aucun"|"Faible"|"Modéré"|"Sévère","description":"max 2 phrases simples","conseil":"string court"}],"resume":"string","recommandation":"string court"}`,
+          messages: [{ role:'user', content:`Médicaments à analyser: ${scannedMeds.join(', ')}` }]
+        })
+      });
+      const data = await response.json();
+      let text = data.content.map(b => b.text || '').join('').replace(/```json|```/g,'').trim();
+      renderInteractions(JSON.parse(text));
+    } catch(e) {
+      document.getElementById('interactions-result').innerHTML = `<div class="alert alert-warn"><span class="alert-icon">⚠️</span><div>Erreur d'analyse. Réessayez.</div></div>`;
+    }
+  }
+
+  function renderInteractions(result) {
+    const lvl = {
+      'Aucun': { bg:'rgba(0,229,160,0.08)', border:'rgba(0,229,160,0.2)', color:'var(--accent)', icon:'✅' },
+      'Faible': { bg:'rgba(0,102,255,0.08)', border:'rgba(0,102,255,0.2)', color:'#6699FF', icon:'ℹ️' },
+      'Modéré': { bg:'rgba(255,107,53,0.08)', border:'rgba(255,107,53,0.25)', color:'#FF8A5C', icon:'⚠️' },
+      'Sévère': { bg:'rgba(255,59,92,0.08)', border:'rgba(255,59,92,0.3)', color:'#FF6B80', icon:'🚨' }
+    };
+    const cards = (result.interactions||[]).map(i => {
+      const s = lvl[i.niveau] || lvl['Faible'];
+      return `<div style="background:${s.bg};border:1px solid ${s.border};border-radius:var(--r);padding:14px 16px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+          <span>${s.icon}</span>
+          <strong style="color:${s.color};font-size:12px">${i.niveau.toUpperCase()}</strong>
+          <span style="color:var(--text2);font-size:13px">${i.med1} + ${i.med2}</span>
+        </div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:5px">${i.description}</div>
+        <div style="font-size:12px;color:var(--text3)">→ ${i.conseil}</div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('interactions-result').innerHTML = `
+      <div class="section-title">Résultats de l'analyse</div>
+      ${cards}
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--accent)"></span>Résumé</div>
+        <div class="card-content">${result.resume}</div>
+        ${result.recommandation ? `<div style="margin-top:8px;font-size:12px;color:var(--text3)">→ ${result.recommandation}</div>` : ''}
+      </div>
+    `;
+  }
+
+  // ─── ASSISTANT ─────────────────────────────────────────
+  function setQuestion(q) {
+    document.getElementById('chat-input').value = q;
+    sendChat();
+  }
+
+  async function sendChat() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+    appendMessage('user', msg);
+    chatHistory.push({ role:'user', content:msg });
+    const thinkId = 'think-' + Date.now();
+    appendThinking(thinkId);
+
+    try {
+      const response = await fetch('/api/claude', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1000,
+          system: `Tu es MedScan AI, assistant médical bienveillant. Réponds en français, concis et clair (max 180 mots). Utilise des listes quand pertinent. N'établis jamais de diagnostic. Rappelle de consulter un professionnel pour les cas sérieux.${allergies.length ? ` L'utilisateur est allergique à: ${allergies.join(', ')}.` : ''}`,
+          messages: chatHistory
+        })
+      });
+      const data = await response.json();
+      const reply = data.content.map(b => b.text || '').join('');
+      document.getElementById(thinkId)?.remove();
+      appendMessage('ai', reply);
+      chatHistory.push({ role:'assistant', content:reply });
+    } catch(e) {
+      document.getElementById(thinkId)?.remove();
+      appendMessage('ai', 'Désolé, je ne peux pas répondre pour le moment. Vérifiez votre connexion.');
+    }
+  }
+
+  function appendMessage(role, text) {
+    const m = document.getElementById('chat-messages');
+    const d = document.createElement('div');
+    d.className = `message ${role}`;
+    d.innerHTML = `<div class="message-label">${role==='user'?'Vous':'MedScan AI'}</div><div class="message-bubble">${text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div>`;
+    m.appendChild(d);
+    m.scrollTop = m.scrollHeight;
+  }
+
+  function appendThinking(id) {
+    const m = document.getElementById('chat-messages');
+    const d = document.createElement('div');
+    d.className = 'message ai'; d.id = id;
+    d.innerHTML = `<div class="message-label">MedScan AI</div><div class="message-bubble"><div class="thinking"><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div></div></div>`;
+    m.appendChild(d);
+    m.scrollTop = m.scrollHeight;
+  }
+
+  // ─── NOTICE SIMPLIFIÉE ─────────────────────────────────
+  function switchNoticeTab(idx, el) {
+    document.querySelectorAll('.notice-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('notice-ex-0').style.display = idx === 0 ? 'block' : 'none';
+    document.getElementById('notice-ex-1').style.display = idx === 1 ? 'block' : 'none';
+  }
+
+  async function simplifyNotice() {
+    const query = document.getElementById('notice-input').value.trim();
+    if (!query) return;
+    document.getElementById('notice-result').innerHTML = '';
+    document.getElementById('notice-loading').style.display = 'flex';
+
+    try {
+      const response = await fetch('/api/claude', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1000,
+          system: `Tu es un expert en communication médicale. Transforme les notices médicales complexes en langage simple et compréhensible pour tous. JSON uniquement:
+{"sections":[{"titre":"string","original":"string ou null","simplifie":"string en langage très clair","emoji":"string"}],"conseil_global":"string"}`,
+          messages: [{ role:'user', content:`Simplifie la notice ou les informations de ce médicament en sections claires: ${query}` }]
+        })
+      });
+      const data = await response.json();
+      let text = data.content.map(b => b.text||'').join('').replace(/```json|```/g,'').trim();
+      const result = JSON.parse(text);
+      renderNotice(result);
+    } catch(e) {
+      document.getElementById('notice-result').innerHTML = `<div class="alert alert-warn"><span class="alert-icon">⚠️</span><div>Erreur. Réessayez.</div></div>`;
+    } finally {
+      document.getElementById('notice-loading').style.display = 'none';
+    }
+  }
+
+  function renderNotice(result) {
+    const sections = (result.sections||[]).map(s => `
+      <div class="card" style="margin-bottom:10px">
+        <div class="card-title"><span style="font-size:14px">${s.emoji}</span> ${s.titre}</div>
+        ${s.original ? `<div style="background:var(--surface2);border-radius:8px;padding:10px;margin-bottom:10px;font-size:12px;color:var(--text3);font-style:italic;line-height:1.5">${s.original}</div>` : ''}
+        <div class="card-content">${s.simplifie.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div>
+      </div>
+    `).join('');
+
+    document.getElementById('notice-result').innerHTML = `
+      <div class="section-title">Notice simplifiée</div>
+      ${sections}
+      ${result.conseil_global ? `<div class="alert alert-info"><span class="alert-icon">💡</span><div>${result.conseil_global}</div></div>` : ''}
+    `;
+  }
+
+  // ─── VÉRIFICATION CONTREFAÇONS ─────────────────────────
+  async function verifyMed() {
+    const barcode = document.getElementById('verify-barcode').value.trim();
+    const name = document.getElementById('verify-name').value.trim();
+    const country = document.getElementById('verify-country').value.trim();
+    const desc = document.getElementById('verify-desc').value.trim();
+    if (!name && !barcode) { alert('Veuillez renseigner au moins le nom ou le code-barres.'); return; }
+
+    document.getElementById('verify-result').innerHTML = '';
+    document.getElementById('verify-loading').style.display = 'flex';
+
+    try {
+      const response = await fetch('/api/claude', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1000,
+          system: `Tu es un expert en détection de médicaments contrefaits. Analyse les informations fournies et donne une évaluation de risque. JSON uniquement:
+{"verdict":"Authentique"|"Suspect"|"Inconnu","score_confiance":85,"signaux_positifs":["string"],"signaux_alerte":["string ou vide"],"recommandations":["string"],"message":"string bienveillant"}`,
+          messages: [{ role:'user', content:`Vérification médicament:
+Nom: ${name||'Non renseigné'}
+Code-barres/Lot: ${barcode||'Non renseigné'}
+Pays d'achat: ${country||'Non renseigné'}
+Description visuelle: ${desc||'Non renseignée'}` }]
+        })
+      });
+      const data = await response.json();
+      let text = data.content.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+      renderVerify(JSON.parse(text));
+    } catch(e) {
+      document.getElementById('verify-result').innerHTML = `<div class="alert alert-warn"><span class="alert-icon">⚠️</span><div>Erreur d'analyse. Réessayez.</div></div>`;
+    } finally {
+      document.getElementById('verify-loading').style.display = 'none';
+    }
+  }
+
+  function renderVerify(r) {
+    const isAuth = r.verdict === 'Authentique';
+    const isSusp = r.verdict === 'Suspect';
+    const icon = isAuth ? '✅' : isSusp ? '🚨' : '❓';
+    const cls = isAuth ? 'authentic' : isSusp ? 'suspicious' : '';
+    const titleColor = isAuth ? 'var(--accent)' : isSusp ? 'var(--danger)' : 'var(--text2)';
+
+    const positifs = (r.signaux_positifs||[]).map(s => `<div style="font-size:13px;color:var(--accent);margin-bottom:4px">✓ ${s}</div>`).join('');
+    const alertes = (r.signaux_alerte||[]).map(s => `<div style="font-size:13px;color:var(--danger);margin-bottom:4px">⚠ ${s}</div>`).join('');
+    const recs = (r.recommandations||[]).map(s => `<div style="font-size:13px;color:var(--text2);margin-bottom:4px">→ ${s}</div>`).join('');
+
+    document.getElementById('verify-result').innerHTML = `
+      <div class="verify-result ${cls}">
+        <div class="verify-result-icon">${icon}</div>
+        <div class="verify-result-title" style="color:${titleColor}">${r.verdict}</div>
+        <div class="verify-result-sub">Indice de confiance : ${r.score_confiance}%</div>
+      </div>
+      ${positifs ? `<div class="card" style="margin-top:12px"><div class="card-title"><span class="dot" style="background:var(--accent)"></span>Signaux positifs</div>${positifs}</div>` : ''}
+      ${alertes ? `<div class="card" style="margin-top:10px"><div class="card-title"><span class="dot" style="background:var(--danger)"></span>Points d'attention</div>${alertes}</div>` : ''}
+      ${recs ? `<div class="card" style="margin-top:10px"><div class="card-title"><span class="dot" style="background:var(--accent2)"></span>Recommandations</div>${recs}</div>` : ''}
+      ${r.message ? `<div class="alert alert-info" style="margin-top:10px"><span class="alert-icon">💡</span><div>${r.message}</div></div>` : ''}
+    `;
+  }
+
+  // ─── PROFIL ────────────────────────────────────────────
+  function addAllergy() {
+    const val = document.getElementById('allergy-input').value.trim();
+    if (!val || allergies.includes(val)) return;
+    allergies.push(val);
+    localStorage.setItem('medscan_allergies', JSON.stringify(allergies));
+    document.getElementById('allergy-input').value = '';
+    renderAllergies();
+  }
+
+  function removeAllergy(name) {
+    allergies = allergies.filter(a => a !== name);
+    localStorage.setItem('medscan_allergies', JSON.stringify(allergies));
+    renderAllergies();
+  }
+
+  function renderAllergies() {
+    document.getElementById('allergy-tags').innerHTML = allergies.map(a =>
+      `<span style="background:rgba(255,59,92,0.1);border:1px solid rgba(255,59,92,0.25);color:#FF8A96;border-radius:20px;padding:4px 12px;font-size:12px;display:flex;align-items:center;gap:6px">${a}<button onclick="removeAllergy('${a}')" style="background:none;border:none;color:inherit;cursor:pointer;font-size:14px">×</button></span>`
+    ).join('');
+  }
+
+  document.getElementById('allergy-input').addEventListener('keydown', e => { if(e.key==='Enter') addAllergy(); });
+
+  function updateStats() {
+    document.getElementById('stat-scans').textContent = scanCount;
+    document.getElementById('stat-interactions').textContent = interCount;
+  }
+
+  // ─── INIT ──────────────────────────────────────────────
+  renderAllergies();
+  updateStats();
+</script>
+</body>
+</html>
