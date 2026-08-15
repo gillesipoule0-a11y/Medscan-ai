@@ -1136,7 +1136,7 @@
     const interval = setInterval(() => { document.getElementById('loading-msg').textContent = msgs[++i % msgs.length]; }, 800);
 
     try {
-      const response = await fetch('/api/claude', {
+      const response = await fetch('/.netlify/functions/claude', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1329,7 +1329,7 @@ Pour niveau_risque: "Faible", "Modéré" ou "Élevé" uniquement.`,
     document.getElementById('interactions-result').innerHTML = `<div class="loading-state"><div class="spinner"></div><div class="loading-text">Analyse des interactions…</div></div>`;
 
     try {
-      const response = await fetch('/api/claude', {
+      const response = await fetch('/.netlify/functions/claude', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1396,7 +1396,7 @@ Pour niveau_risque: "Faible", "Modéré" ou "Élevé" uniquement.`,
     appendThinking(thinkId);
 
     try {
-      const response = await fetch('/api/claude', {
+      const response = await fetch('/.netlify/functions/claude', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1450,7 +1450,7 @@ Pour niveau_risque: "Faible", "Modéré" ou "Élevé" uniquement.`,
     document.getElementById('notice-loading').style.display = 'flex';
 
     try {
-      const response = await fetch('/api/claude', {
+      const response = await fetch('/.netlify/functions/claude', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1500,7 +1500,7 @@ Pour niveau_risque: "Faible", "Modéré" ou "Élevé" uniquement.`,
     document.getElementById('verify-loading').style.display = 'flex';
 
     try {
-      const response = await fetch('/api/claude', {
+      const response = await fetch('/.netlify/functions/claude', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
