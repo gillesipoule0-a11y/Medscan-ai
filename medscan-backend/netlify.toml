@@ -1,26 +1,8 @@
-# netlify.toml — Configuration du projet MedScan AI
-
 [build]
-  publish = "public"          # Dossier contenant votre HTML/CSS/JS
-  functions = "netlify/functions"  # Dossier des fonctions serverless
+  publish = "."
+  functions = "netlify/functions"
 
-# Redirige tous les appels /api/claude vers la fonction serverless
 [[redirects]]
   from = "/api/claude"
   to = "/.netlify/functions/claude"
   status = 200
-
-# Headers de sécurité pour le site
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(), microphone=()"
-
-# Cache des assets statiques
-[[headers]]
-  for = "/assets/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
